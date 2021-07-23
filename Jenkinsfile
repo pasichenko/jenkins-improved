@@ -10,6 +10,14 @@ pipeline {
                 sh 'mvn clean verify'
             }
         }
+        stage('Commit Database Changeset') {
+            when {
+                branch 'master'
+            }
+            steps {
+                sh "echo Step DB run in master"
+            }
+        }
         stage('Deploy') {
             steps {
                 sh 'mv target/jenkins-default-0.0.1-SNAPSHOT.jar jenkins-app.jar'
