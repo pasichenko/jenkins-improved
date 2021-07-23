@@ -20,6 +20,28 @@ pipeline {
         }
         stage('Deploy') {
             steps {
+                catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+                    script {
+                        try {
+                            timeout(time: 20, unit: 'SECONDS') {
+                                RELEASE_SCOPE = input(
+                                        id: "IDAPP",
+                                        message: "Approve release?",
+                                        ok: "Accept",
+                                        parameters: [
+                                                choice(name: 'CHOICES', choices: ['Deploy', 'Not deploy'], description: 'You want deploy artifact?')
+
+                                        ]
+                                )
+                            }
+                        } catch (err) {
+                            RELEASE_SCOPE = 'fail'
+                        }
+                    }
+                }
+                when {
+                    expression { RELEASE_SCOPE == 'Deploy' }
+                }
                 sh 'mv target/jenkins-default-0.0.1-SNAPSHOT.jar jenkins-app.jar'
                 sshPublisher(
                         continueOnError: false,
