@@ -18,27 +18,29 @@ pipeline {
                 sh "echo Step DB run in master"
             }
         }
-        stage('Deploy') {
-            steps {
-                catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
-                    script {
-                        try {
-                            timeout(time: 20, unit: 'SECONDS') {
-                                RELEASE_SCOPE = input(
-                                        id: "IDAPP",
-                                        message: "Approve release?",
-                                        ok: "Accept",
-                                        parameters: [
-                                                choice(name: 'CHOICES', choices: ['Deploy', 'Not deploy'], description: 'You want deploy artifact?')
+        stage('Deploy question') {
+            catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+                script {
+                    try {
+                        timeout(time: 20, unit: 'SECONDS') {
+                            RELEASE_SCOPE = input(
+                                    id: "IDAPP",
+                                    message: "Approve release?",
+                                    ok: "Accept",
+                                    parameters: [
+                                            choice(name: 'CHOICES', choices: ['Not deploy', 'Deploy'], description: 'You want deploy artifact?')
 
-                                        ]
-                                )
-                            }
-                        } catch (err) {
-                            RELEASE_SCOPE = 'fail'
+                                    ]
+                            )
                         }
+                    } catch (err) {
+                        RELEASE_SCOPE = 'fail'
                     }
                 }
+            }
+        }
+        stage('Deploy') {
+            steps {
                 when {
                     expression { RELEASE_SCOPE == 'Deploy' }
                 }
