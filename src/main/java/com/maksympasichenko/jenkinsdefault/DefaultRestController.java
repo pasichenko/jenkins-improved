@@ -7,6 +7,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class DefaultRestController {
     @GetMapping("/test")
     public String test() {
-        return "Master Branch Jenkins Default";
+        return "Not Master Branch Jenkins Default";
     }
 }
