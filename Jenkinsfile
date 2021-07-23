@@ -12,7 +12,7 @@ pipeline {
         }
         stage('Deploy') {
             steps {
-                sh 'mv target/jenkins-0.0.1-SNAPSHOT.jar jenkins-app.jar'
+                sh 'mv target/jenkins-default-0.0.1-SNAPSHOT.jar jenkins-app.jar'
                 sshPublisher(
                         continueOnError: false,
                         failOnError: true,
