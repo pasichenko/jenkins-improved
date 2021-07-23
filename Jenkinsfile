@@ -18,50 +18,58 @@ pipeline {
                 sh "echo Step DB run in master"
             }
         }
-        stage('Deploy question') {
-            steps {
-                catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
-                    script {
-                        try {
-                            timeout(time: 20, unit: 'SECONDS') {
-                                RELEASE_SCOPE = input(
-                                        id: "IDAPP",
-                                        message: "Approve release?",
-                                        ok: "Accept",
-                                        parameters: [
-                                                choice(name: 'CHOICES', choices: ['Not deploy', 'Deploy'], description: 'You want deploy artifact?')
+        stage('Deploy') {
+            stages {
+                stage('Pre deploy preparation') {
+                    steps {
+                        catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+                            script {
+                                try {
+                                    timeout(time: 20, unit: 'SECONDS') {
+                                        RELEASE_SCOPE = input(
+                                                id: "IDAPP",
+                                                message: "You want deploy artifact?",
+                                                ok: "Continue",
+                                                parameters: [
+                                                        choice(name: "CHOICES", choices: ['Not deploy', 'Deploy'])
 
-                                        ]
-                                )
+                                                ]
+                                        )
+                                    }
+                                } catch (err) {
+                                    RELEASE_SCOPE = 'fail'
+                                }
                             }
-                        } catch (err) {
-                            RELEASE_SCOPE = 'fail'
                         }
                     }
                 }
-            }
-        }
-        stage('Deploy') {
-            when {
-                expression { RELEASE_SCOPE == 'Deploy' }
-            }
-            steps {
-                sh 'mv target/jenkins-default-0.0.1-SNAPSHOT.jar jenkins-app.jar'
-                sshPublisher(
-                        continueOnError: false,
-                        failOnError: true,
-                        publishers: [
-                                sshPublisherDesc(
-                                        configName: "remote_deploy_server",
-                                        transfers: [sshTransfer(
-                                                sourceFiles: 'jenkins-app.jar',
-                                                execCommand: "./run.sh"
+                stage('Deploy') {
+                    when {
+                        anyOf {
+                            expression { RELEASE_SCOPE == 'Deploy' };
+                            branch 'master'
+                        }
+
+                    }
+                    steps {
+                        sh 'mv target/jenkins-default-0.0.1-SNAPSHOT.jar jenkins-app.jar'
+                        sshPublisher(
+                                continueOnError: false,
+                                failOnError: true,
+                                publishers: [
+                                        sshPublisherDesc(
+                                                configName: "remote_deploy_server",
+                                                transfers: [sshTransfer(
+                                                        sourceFiles: 'jenkins-app.jar',
+                                                        execCommand: "./run.sh"
+                                                )
+                                                ],
+                                                verbose: true,
                                         )
-                                        ],
-                                        verbose: true,
-                                )
-                        ]
-                )
+                                ]
+                        )
+                    }
+                }
             }
         }
     }
