@@ -42,10 +42,10 @@ pipeline {
             }
         }
         stage('Deploy') {
+            when {
+                expression { RELEASE_SCOPE == 'Deploy' }
+            }
             steps {
-                when {
-                    expression { RELEASE_SCOPE == 'Deploy' }
-                }
                 sh 'mv target/jenkins-default-0.0.1-SNAPSHOT.jar jenkins-app.jar'
                 sshPublisher(
                         continueOnError: false,
