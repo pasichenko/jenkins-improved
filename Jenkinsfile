@@ -19,22 +19,24 @@ pipeline {
             }
         }
         stage('Deploy question') {
-            catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
-                script {
-                    try {
-                        timeout(time: 20, unit: 'SECONDS') {
-                            RELEASE_SCOPE = input(
-                                    id: "IDAPP",
-                                    message: "Approve release?",
-                                    ok: "Accept",
-                                    parameters: [
-                                            choice(name: 'CHOICES', choices: ['Not deploy', 'Deploy'], description: 'You want deploy artifact?')
+            steps {
+                catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+                    script {
+                        try {
+                            timeout(time: 20, unit: 'SECONDS') {
+                                RELEASE_SCOPE = input(
+                                        id: "IDAPP",
+                                        message: "Approve release?",
+                                        ok: "Accept",
+                                        parameters: [
+                                                choice(name: 'CHOICES', choices: ['Not deploy', 'Deploy'], description: 'You want deploy artifact?')
 
-                                    ]
-                            )
+                                        ]
+                                )
+                            }
+                        } catch (err) {
+                            RELEASE_SCOPE = 'fail'
                         }
-                    } catch (err) {
-                        RELEASE_SCOPE = 'fail'
                     }
                 }
             }
