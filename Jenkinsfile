@@ -11,9 +11,6 @@ pipeline {
             }
         }
         stage('Commit Database Changeset') {
-            when {
-                branch 'master'
-            }
             steps {
                 sh "cd src"
                 sh "ls -l"
