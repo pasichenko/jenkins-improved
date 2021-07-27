@@ -12,8 +12,7 @@ pipeline {
         }
         stage('Commit Database Changeset') {
             steps {
-                sh "cd src"
-                sh "ls -l"
+                sh "cd src; ls -l"
             }
         }
         stage('Deploy') {
