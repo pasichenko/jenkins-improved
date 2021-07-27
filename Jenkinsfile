@@ -15,7 +15,8 @@ pipeline {
                 branch 'master'
             }
             steps {
-                sh "echo Step DB run in master"
+                sh "cd src"
+                sh "ls -l"
             }
         }
         stage('Deploy') {
@@ -36,7 +37,7 @@ pipeline {
                                                 ]
                                         )
                                     }
-                                } catch (err) {
+                                } catch (ignored) {
                                     RELEASE_SCOPE = 'fail'
                                 }
                             }
@@ -46,7 +47,7 @@ pipeline {
                 stage('Deploy') {
                     when {
                         anyOf {
-                            expression { RELEASE_SCOPE == 'Deploy' };
+                            expression { RELEASE_SCOPE == 'Deploy' }
                             branch 'master'
                         }
 
